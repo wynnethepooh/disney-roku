@@ -11,29 +11,37 @@ sub GetContent()
     ' request the content feed from the API
     xfer = CreateObject("roURLTransfer")
     xfer.SetCertificatesFile("common:/certs/ca-bundle.crt")
-    xfer.SetURL("https://jonathanbduval.com/roku/feeds/roku-developers-feed-v1.json")
+    xfer.SetURL("https://cd-static.bamgrid.com/dp-117731241344/home.json")
     rsp = xfer.GetToString()
     rootChildren = []
-    rows = {}
 
     ' parse the feed and build a tree of ContentNodes to populate the GridView
     json = ParseJson(rsp)
     if json <> invalid
-        for each category in json
-            value = json.Lookup(category)
-            if Type(value) = "roArray" ' if parsed key value having other objects in it
-                if category <> "series" ' ignore series for this phase
+        containers = json.Lookup("data").Lookup("StandardCollection").Lookup("containers")
+        if Type(containers) = "roArray" ' if container has other objects in it
+            for each container in containers
+                setData = container.Lookup("set")
+                items = setData.Lookup("items")
+                if items <> invalid and Type(items) = "roArray"
                     row = {}
-                    row.title = category
+                    row.title = setData.Lookup("text").Lookup("title").Lookup("full").Lookup("set").Lookup("default").Lookup("content")
                     row.children = []
-                    for each item in value ' parse items and push them to row
+                    items = setData.Lookup("items")
+                    for each item in items
                         itemData = GetItemData(item)
-                        row.children.Push(itemData)
+                        if itemData <> invalid
+                            row.children.Push(itemData)
+                        end if
                     end for
                     rootChildren.Push(row)
+                else if setData.type = "SetRef"
+                    setContent = GetSetContent(setData.Lookup("refId"))
+                    print setData.Lookup("text").Lookup("title").Lookup("full").Lookup("set").Lookup("default").Lookup("content")
+                    rootChildren.Push(setContent)
                 end if
-            end if
-        end for
+            end for
+        end if
         ' set up a root ContentNode to represent rowList on the GridScreen
         contentNode = CreateObject("roSGNode", "ContentNode")
         contentNode.Update({
@@ -45,22 +53,86 @@ sub GetContent()
     end if
 end sub
 
-function GetItemData(video as Object) as Object
+function GetSetContent(refId) 
+    xfer = CreateObject("roURLTransfer")
+    xfer.SetCertificatesFile("common:/certs/ca-bundle.crt")
+    xfer.SetURL(Substitute("https://cd-static.bamgrid.com/dp-117731241344/sets/{0}.json", refId))
+    rsp = xfer.GetToString()
+
+    json = ParseJson(rsp)
+    if json <> invalid
+        data = json.Lookup("data")
+        ' print data
+        setData = invalid
+        if data <> invalid
+            for each key in data
+                setData = data.Lookup(key)
+                items = setData.Lookup("items")
+                if items <> invalid and Type(items) = "roArray"
+                    row = {}
+                    row.title = setData.Lookup("text").Lookup("title").Lookup("full").Lookup("set").Lookup("default").Lookup("content")
+                    row.children = []
+                    items = setData.Lookup("items")
+                    for each item in items
+                        itemData = GetItemData(item)
+                        if itemData <> invalid
+                            row.children.Push(itemData)
+                        end if
+                    end for
+                    return row
+                end if
+            end for
+        end if
+    end if
+    
+end function
+
+function GetItemData(data as Object) as Object
     item = {}
-    ' populate some standard content metadata fields to be displayed on the GridScreen
-    ' https://developer.roku.com/docs/developer-program/getting-started/architecture/content-metadata.md
-    if video.longDescription <> invalid
-        item.description = video.longDescription
+    item.id = data.contentId
+
+    if data.type = "DmcVideo"
+        item.title = data.text.title.full.program.default.content
+    else if data.type = "DmcSeries"
+        item.title = data.text.title.full.series.default.content
+    else if data.type = "StandardCollection"
+        item.title = data.text.title.full.collection.default.content
+    else if data.type = invalid
+        return invalid
+    else 
+        print item.type
+    end if
+
+    item.description = "test"
+
+    imageUrl = invalid
+    if data.type = "DmcVideo"
+        imageUrl = data.image.Lookup("tile").Lookup("1.78").Lookup("program").default.url
+    else if data.type = "DmcSeries"
+        imageUrl = data.image.Lookup("tile").Lookup("1.78").Lookup("series").default.url
+    else if data.type = "StandardCollection"
+        imageUrl = data.image.Lookup("tile").Lookup("1.78").Lookup("default").default.url
+    end if
+    if imageUrl <> invalid
+        item.hdPosterURL = imageUrl
     else
-        item.description = video.shortDescription
+        item.hdPosterURL = "pkg:/images/disney-plus-hulu-logo.jpg" ' use placeholder image if no image is available
     end if
-    item.hdPosterURL = video.thumbnail
-    item.title = video.title
-    item.releaseDate = video.releaseDate
-    item.id = video.id
-    if video.content <> invalid
-        ' populate length of content to be displayed on the GridScreen
-        item.length = video.content.duration
+
+    if data.releases <> invalid
+        item.releaseDate = data.releases[0].releaseDate
     end if
+    
+    item.length = 0
     return item
+end function
+
+function isImageAvailable(url as String) as boolean
+    request = CreateObject("roUrlTransfer")
+    request.setUrl(url)
+    request.SetRequest("HEAD") ' use HEAD request to avoid downloading the image
+    request.InitClientCertificates()
+    response = request.GetToString()
+    code = request.GetResponseCode()
+    return code = 200
 end function
