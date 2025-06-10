@@ -36,5 +36,6 @@
             showRowLabel="[true]"
             rowFocusAnimationStyle="floatingfocus"
         />
+        <MainLoaderTask id="MainLoaderTask" />
     </children>
 </component>

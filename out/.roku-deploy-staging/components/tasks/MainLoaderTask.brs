@@ -4,7 +4,16 @@
 sub Init()
     ' set the name of the function in the Task node component to be executed when the state field changes to RUN
     ' in our case this method executed after the following cmd: m.contentTask.control = "run"(see Init method in MainScene)
-    m.top.functionName = "GetContent"
+    m.top.functionName = "Run"
+end sub
+
+sub Run()
+    if m.top.refId <> invalid and m.top.refId <> ""
+        ' if refId is set, we need to fetch content of the ref set
+        GetSetContent(m.top.refId)
+    else
+        GetContent()
+    end if
 end sub
 
 sub GetContent()
@@ -36,9 +45,15 @@ sub GetContent()
                     end for
                     rootChildren.Push(row)
                 else if setData.type = "SetRef"
-                    setContent = GetSetContent(setData.Lookup("refId"))
+                    ' setContent = GetSetContent(setData.Lookup("refId"))
                     print setData.Lookup("text").Lookup("title").Lookup("full").Lookup("set").Lookup("default").Lookup("content")
-                    rootChildren.Push(setContent)
+                    row = {}
+                    row.title = setData.Lookup("text").Lookup("title").Lookup("full").Lookup("set").Lookup("default").Lookup("content")
+                    row.type = setData.type
+                    row.refId = setData.refId
+                    row.alreadyloaded = false
+                    row.children = []
+                    rootChildren.Push(row)
                 end if
             end for
         end if
@@ -53,7 +68,9 @@ sub GetContent()
     end if
 end sub
 
-function GetSetContent(refId) 
+' fetches the content of a set by its refId 
+' and populates the currentRowContent field
+function GetSetContent(refId as string) 
     xfer = CreateObject("roURLTransfer")
     xfer.SetCertificatesFile("common:/certs/ca-bundle.crt")
     xfer.SetURL(Substitute("https://cd-static.bamgrid.com/dp-117731241344/sets/{0}.json", refId))
@@ -69,17 +86,19 @@ function GetSetContent(refId)
                 setData = data.Lookup(key)
                 items = setData.Lookup("items")
                 if items <> invalid and Type(items) = "roArray"
-                    row = {}
-                    row.title = setData.Lookup("text").Lookup("title").Lookup("full").Lookup("set").Lookup("default").Lookup("content")
-                    row.children = []
-                    items = setData.Lookup("items")
+                    contentNode = CreateObject("roSGNode", "ContentNode")
                     for each item in items
                         itemData = GetItemData(item)
                         if itemData <> invalid
-                            row.children.Push(itemData)
+                            childNode = CreateObject("roSGNode", "ContentNode")
+                            if itemData.title <> invalid then childNode.title = itemData.title
+                            if itemData.hdPosterURL <> invalid then childNode.hdPosterURL = itemData.hdPosterURL
+                            if itemData.description <> invalid then childNode.description = itemData.description
+                            if itemData.length <> invalid then childNode.length = itemData.length
+                            contentNode.AppendChild(childNode)
                         end if
                     end for
-                    return row
+                    m.top.currentRowContent = contentNode
                 end if
             end for
         end if

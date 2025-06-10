@@ -3,6 +3,8 @@
 
 <component name="MainLoaderTask" extends="Task">
     <interface>
+        <field id="refId" type="string" />
+        <field id="currentRowContent" type="node" />
         <field id="content" type="node" />
     </interface>
 
