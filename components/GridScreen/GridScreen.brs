@@ -17,16 +17,15 @@ end sub
 sub OnItemFocused()
     focusedIndex = m.rowList.rowItemFocused ' get position of focused item
     row = m.rowList.content.GetChild(focusedIndex[0]) ' get all items of row
-    if row.type = "SetRef" and not row.alreadyloaded
+    nextRow = m.rowList.content.GetChild(focusedIndex[0] + 1)
+    if nextRow <> invalid and nextRow.type = "SetRef" and not nextRow.alreadyloaded
         ' if focused item is a ref set, we need to fetch its content
         ' and add new content to rowList
         m.loaderTask = m.top.FindNode("MainLoaderTask")
-        m.loaderTask.refId = row.refId
-        m.loaderTask.ObserveField("currentRowContent", "OnSetContentLoaded")
+        m.loaderTask.refId = nextRow.refId
+        m.loaderTask.ObserveField("nextRowContent", "OnSetContentLoaded")
         m.loaderTask.control = "run"
-        row.alreadyloaded = true
-        return
-        
+        nextRow.alreadyloaded = true        
     end if
     item = row.GetChild(focusedIndex[1]) ' get focused item
     ' update description label with description of focused item
@@ -42,15 +41,15 @@ end sub
 ' invoked when ref set content is loaded and 
 ' adds the items to the row
 sub OnSetContentLoaded()
-    setContent = m.loaderTask.currentRowContent
+    setContent = m.loaderTask.nextRowContent
     if setContent <> invalid
         focusedIndex = m.rowList.rowItemFocused
-        row = m.rowList.content.GetChild(focusedIndex[0])
+        row = m.rowList.content.GetChild(focusedIndex[0] + 1)
         for i = 0 to setContent.GetChildCount() - 1
             row.AppendChild(setContent.GetChild(i))
         end for
         m.rowList.content = m.rowList.content ' trigger UI refresh
-        m.loaderTask.currentRowContent = invalid
+        m.loaderTask.nextRowContent = invalid
         m.rowList.jumpToRowItem = [focusedIndex[0], 0] ' restore focus to current row
 
     end if

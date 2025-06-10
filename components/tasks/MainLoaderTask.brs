@@ -69,7 +69,7 @@ sub GetContent()
 end sub
 
 ' fetches the content of a set by its refId 
-' and populates the currentRowContent field
+' and populates the nextRowContent field
 function GetSetContent(refId as string) 
     xfer = CreateObject("roURLTransfer")
     xfer.SetCertificatesFile("common:/certs/ca-bundle.crt")
@@ -98,7 +98,7 @@ function GetSetContent(refId as string)
                             contentNode.AppendChild(childNode)
                         end if
                     end for
-                    m.top.currentRowContent = contentNode
+                    m.top.nextRowContent = contentNode
                 end if
             end for
         end if
