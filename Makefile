@@ -1,4 +1,4 @@
-APPNAME = phase1_rsg
+APPNAME = disney_roku
 ZIP_EXCLUDE= -x keys\* -x store_assets\*
 APPSROOT = ../..
 

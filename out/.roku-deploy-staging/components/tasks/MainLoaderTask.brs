@@ -40,7 +40,7 @@ sub GetContent()
                     for each item in items
                         itemData = GetItemData(item)
                         if itemData <> invalid
-                            row.children.Push(itemData)
+                        row.children.Push(itemData)
                         end if
                     end for
                     rootChildren.Push(row)
@@ -54,8 +54,8 @@ sub GetContent()
                     row.alreadyloaded = false
                     row.children = []
                     rootChildren.Push(row)
-                end if
-            end for
+            end if
+        end for
         end if
         ' set up a root ContentNode to represent rowList on the GridScreen
         contentNode = CreateObject("roSGNode", "ContentNode")
@@ -144,14 +144,4 @@ function GetItemData(data as Object) as Object
     
     item.length = 0
     return item
-end function
-
-function isImageAvailable(url as String) as boolean
-    request = CreateObject("roUrlTransfer")
-    request.setUrl(url)
-    request.SetRequest("HEAD") ' use HEAD request to avoid downloading the image
-    request.InitClientCertificates()
-    response = request.GetToString()
-    code = request.GetResponseCode()
-    return code = 200
 end function

@@ -15,6 +15,7 @@
             height="180"
             loadWidth="320"
             loadHeight="180"
+            failedBitmapUri="pkg:/images/disney-plus-hulu-logo.jpg"
         />
     </children>
 </component>
