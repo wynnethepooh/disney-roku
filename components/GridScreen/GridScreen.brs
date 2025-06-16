@@ -26,11 +26,15 @@ end sub
 ' invoked when another item is focused
 sub OnItemFocused()
     focusedIndex = m.rowList.rowItemFocused
-    bottomRow = m.rowList.content.GetChild(focusedIndex[0] + m.ROW_LOAD_OFFSET)
-    if bottomRow <> invalid and bottomRow.type = "SetRef" and not bottomRow.alreadyloaded
-        ' if focused item is a ref set, we need to fetch its content
-        ' and add new content to rowList
-        LoadSetContent(bottomRow.refId)
+    if focusedIndex[0] + m.ROW_LOAD_OFFSET < m.rowList.content.GetChildCount()
+        bottomRow = m.rowList.content.GetChild(focusedIndex[0] + m.ROW_LOAD_OFFSET)
+        if bottomRow <> invalid and bottomRow.type = "SetRef" and not bottomRow.alreadyloaded
+            ' if focused item is a ref set, we need to fetch its content
+            ' and add new content to rowList
+            LoadSetContent(bottomRow.refId)
+        end if
+    else
+        print "Warning: Attempted to access out-of-bounds row."
     end if
 end sub
 
@@ -47,13 +51,24 @@ sub OnSetContentLoaded()
     setContent = m.loaderTask.nextRowContent
     if setContent <> invalid
         focusedIndex = m.rowList.rowItemFocused
-        row = m.rowList.content.GetChild(focusedIndex[0] + m.ROW_LOAD_OFFSET)
-        for i = 0 to setContent.GetChildCount() - 1
-            row.AppendChild(setContent.GetChild(i))
-        end for
-        m.rowList.content = m.rowList.content ' trigger UI refresh
-        m.loaderTask.nextRowContent = invalid
-        m.rowList.jumpToRowItem = focusedIndex ' restore focus to current row
-        row.alreadyLoaded = true        
+        if focusedIndex[0] + m.ROW_LOAD_OFFSET < m.rowList.content.GetChildCount()
+            row = m.rowList.content.GetChild(focusedIndex[0] + m.ROW_LOAD_OFFSET)
+            if row <> invalid
+                for i = 0 to setContent.GetChildCount() - 1
+                    child = setContent.GetChild(i)
+                    if child <> invalid
+                        row.AppendChild(child)
+                    end if
+                end for
+                m.rowList.content = m.rowList.content ' trigger UI refresh
+                m.loaderTask.nextRowContent = invalid
+                m.rowList.jumpToRowItem = focusedIndex ' restore focus to current row
+                row.alreadyLoaded = true
+            else
+                print "Warning: Row is invalid."
+            end if
+        else
+            print "Warning: Attempted to access out-of-bounds row."
+        end if      
     end if
 end sub

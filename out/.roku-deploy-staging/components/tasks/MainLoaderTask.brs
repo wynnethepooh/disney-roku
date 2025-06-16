@@ -22,10 +22,20 @@ sub GetContent()
     xfer.SetCertificatesFile("common:/certs/ca-bundle.crt")
     xfer.SetURL("https://cd-static.bamgrid.com/dp-117731241344/home.json")
     rsp = xfer.GetToString()
+    if rsp = invalid or rsp = "" then
+        print "Error: Failed to fetch data from server."
+        m.top.content = invalid
+        return
+    end if
     rootChildren = []
 
     ' parse the feed and build a tree of ContentNodes to populate the GridView
     json = ParseJson(rsp)
+    if json = invalid then
+        print "Error: Failed to parse JSON."
+        m.top.content = invalid
+        return
+    end if
     if json <> invalid
         containers = json.Lookup("data").Lookup("StandardCollection").Lookup("containers")
         if Type(containers) = "roArray" ' if container has other objects in it
@@ -70,13 +80,23 @@ end sub
 
 ' fetches the content of a set by its refId 
 ' and populates the nextRowContent field
-function GetSetContent(refId as string) 
+sub GetSetContent(refId as string) 
     xfer = CreateObject("roURLTransfer")
     xfer.SetCertificatesFile("common:/certs/ca-bundle.crt")
     xfer.SetURL(Substitute("https://cd-static.bamgrid.com/dp-117731241344/sets/{0}.json", refId))
     rsp = xfer.GetToString()
+    if rsp = invalid or rsp = "" then
+        print "Error: Failed to fetch data from server."
+        m.top.content = invalid
+        return
+    end if
 
     json = ParseJson(rsp)
+    if json = invalid then
+        print "Error: Failed to parse JSON."
+        m.top.content = invalid
+        return
+    end if
     if json <> invalid
         data = json.Lookup("data")
         ' print data
@@ -105,9 +125,8 @@ function GetSetContent(refId as string)
                 end if
             end for
         end if
-    end if
-    
-end function
+    end if    
+end sub
 
 function GetItemData(data as Object) as Object
     item = {}

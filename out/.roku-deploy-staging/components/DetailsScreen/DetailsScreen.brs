@@ -45,10 +45,10 @@ end sub
 sub SetDetailsContent(content as Object)
     m.description.text = content.description
     m.titleLabel.text = content.title
-    if content.backgroundImageUri <> invalid
+    if content.backgroundImageUri <> invalid and type(content.backgroundImageUri) = "roString" and content.backgroundImageUri <> ""
         m.backgroundImage.uri = content.backgroundImageUri
     end if
-    if content.titleTreatmentImageUri <> invalid
+    if content.titleTreatmentImageUri <> invalid and type(content.titleTreatmentImageUri) = "roString" and content.titleTreatmentImageUri <> ""
         m.titlePoster.uri = content.titleTreatmentImageUri
     end if
     
