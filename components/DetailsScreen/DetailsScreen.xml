@@ -34,6 +34,7 @@
                         height="201"
                         loadHeight="201"
                         loadDisplayMode="scaleToFit"
+                        failedBitmapUri="pkg:/images/disney-plus-hulu-logo.jpg"
                     />
                 </Rectangle>
                 <Label

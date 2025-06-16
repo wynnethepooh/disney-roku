@@ -11,13 +11,20 @@
         <field id="jumpToRowItem" type="intarray" alias="RowList.jumpToRowItem" />
     </interface>
     <children>
+        <Poster
+            id="backgroundImage"
+            uri="pkg:/images/disney-castle-background.png"
+            width="1280"
+            height="400"
+            translation="[0, 0]"
+        />
         <RowList
             itemComponentName="RowListItemComponent"
             id="rowList"
-            translation="[80,0]"
+            translation="[80,350]"
             numRows="3"
             rowitemSize="[[320,180]]"
-            rowItemSpacing="[[20,0]]"
+            rowItemSpacing="[[10,0]]"
             itemSize="[1100,270]"
             rowLabelOffset="[[50,20]]"
             focusXOffset="[50]"

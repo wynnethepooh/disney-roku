@@ -3,11 +3,17 @@
 ' entry point of GridScreen
 ' Note that we need to import this file in GridScreen.xml using relative path.
 sub Init()
+    m.backgroundImage = m.top.FindNode("backgroundImage")
+
     m.rowList = m.top.FindNode("rowList")
     m.rowList.SetFocus(true)
     m.top.ObserveField("visible", "onVisibleChange")
     ' observe rowItemFocused so we can know when another item of rowList will be focused
     m.rowList.ObserveField("rowItemFocused", "OnItemFocused")
+    m.prevFocusedIndex = [0, 0]
+
+    ' offset of row to load when an empty row is at the bottom of the screen
+    m.ROW_LOAD_OFFSET = 1
 end sub
 
 sub OnVisibleChange() ' invoked when GridScreen change visibility
@@ -19,16 +25,23 @@ end sub
 sub OnItemFocused() ' invoked when another item is focused
     focusedIndex = m.rowList.rowItemFocused ' get position of focused item
     row = m.rowList.content.GetChild(focusedIndex[0]) ' get all items of row
-    bottomRow = m.rowList.content.GetChild(focusedIndex[0] + 2)
+    bottomRow = m.rowList.content.GetChild(focusedIndex[0] + m.ROW_LOAD_OFFSET)
     if bottomRow <> invalid and bottomRow.type = "SetRef" and not bottomRow.alreadyloaded
         ' if focused item is a ref set, we need to fetch its content
         ' and add new content to rowList
-        m.loaderTask = m.top.FindNode("MainLoaderTask")
-        m.loaderTask.refId = bottomRow.refId
-        m.loaderTask.ObserveField("nextRowContent", "OnSetContentLoaded")
-        m.loaderTask.control = "run"
+        LoadSetContent(bottomRow.refId) ' load content of the ref set
         bottomRow.alreadyloaded = true        
     end if
+
+    m.prevFocusedIndex = focusedIndex
+end sub
+
+sub LoadSetContent(refId as String)
+    ' this method is invoked by MainLoaderTask to load content of the ref set
+    m.loaderTask = m.top.FindNode("MainLoaderTask")
+    m.loaderTask.refId = refId
+    m.loaderTask.ObserveField("nextRowContent", "OnSetContentLoaded")
+    m.loaderTask.control = "run"
 end sub
 
 ' invoked when ref set content is loaded and 
@@ -37,7 +50,7 @@ sub OnSetContentLoaded()
     setContent = m.loaderTask.nextRowContent
     if setContent <> invalid
         focusedIndex = m.rowList.rowItemFocused
-        row = m.rowList.content.GetChild(focusedIndex[0] + 2)
+        row = m.rowList.content.GetChild(focusedIndex[0] + m.ROW_LOAD_OFFSET)
         for i = 0 to setContent.GetChildCount() - 1
             row.AppendChild(setContent.GetChild(i))
         end for
