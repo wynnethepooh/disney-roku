@@ -91,8 +91,11 @@ function GetSetContent(refId as string)
                         itemData = GetItemData(item)
                         if itemData <> invalid
                             childNode = CreateObject("roSGNode", "ContentNode")
+                            childNode.AddField("tileImageUri", "string", false)
+                            childNode.AddField("backgroundImageUri", "string", false)
                             if itemData.title <> invalid then childNode.title = itemData.title
                             if itemData.tileImageUri <> invalid then childNode.tileImageUri = itemData.tileImageUri
+                            if itemData.backgroundImageUri <> invalid then childNode.backgroundImageUri = itemData.backgroundImageUri
                             if itemData.description <> invalid then childNode.description = itemData.description
                             if itemData.length <> invalid then childNode.length = itemData.length
                             contentNode.AppendChild(childNode)
@@ -142,9 +145,9 @@ function GetItemData(data as Object) as Object
 end function
 
 function GetItemImages(data as Object, item) as Object
-    tiletileImageUrl = invalid
+    tileImageUri = invalid
     if data.type = "DmcVideo"
-        tileImageUrl = data.image.Lookup("tile").Lookup("1.78").Lookup("program").default.url
+        tileImageUri = data.image.Lookup("tile").Lookup("1.78").Lookup("program").default.url
         if data.image.Lookup("title_treatment") <> invalid
             item.titleTreatmentImageUri = data.image.Lookup("title_treatment").Lookup("1.78").Lookup("program").default.url
         end if
@@ -152,7 +155,7 @@ function GetItemImages(data as Object, item) as Object
             item.backgroundImageUri = data.image.Lookup("background").Lookup("1.78").Lookup("program").default.url
         end if
     else if data.type = "DmcSeries"
-        tileImageUrl = data.image.Lookup("tile").Lookup("1.78").Lookup("series").default.url
+        tileImageUri = data.image.Lookup("tile").Lookup("1.78").Lookup("series").default.url
         if data.image.Lookup("title_treatment") <> invalid
             item.titleTreatmentImageUri = data.image.Lookup("title_treatment").Lookup("1.78").Lookup("series").default.url
         end if
@@ -160,7 +163,7 @@ function GetItemImages(data as Object, item) as Object
             item.backgroundImageUri = data.image.Lookup("background").Lookup("1.78").Lookup("series").default.url
         end if
     else if data.type = "StandardCollection"
-        tileImageUrl = data.image.Lookup("tile").Lookup("1.78").Lookup("default").default.url
+        tileImageUri = data.image.Lookup("tile").Lookup("1.78").Lookup("default").default.url
         if data.image.Lookup("title_treatment") <> invalid
             item.titleTreatmentImageUri = data.image.Lookup("title_treatment").Lookup("1.78").Lookup("default").default.url
         end if
@@ -168,8 +171,8 @@ function GetItemImages(data as Object, item) as Object
             item.backgroundImageUri = data.image.Lookup("background").Lookup("1.78").Lookup("default").default.url
         end if
     end if
-    if tileImageUrl <> invalid
-        item.tileImageUri = tileImageUrl
+    if tileImageUri <> invalid
+        item.tileImageUri = tileImageUri
     else
         item.tileImageUri = "pkg:/images/disney-plus-hulu-logo.jpg" ' use placeholder image if no image is available
     end if

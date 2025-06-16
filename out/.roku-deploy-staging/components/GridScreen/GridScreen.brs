@@ -30,7 +30,6 @@ sub OnItemFocused() ' invoked when another item is focused
         ' if focused item is a ref set, we need to fetch its content
         ' and add new content to rowList
         LoadSetContent(bottomRow.refId) ' load content of the ref set
-        bottomRow.alreadyloaded = true        
     end if
 
     m.prevFocusedIndex = focusedIndex
@@ -57,6 +56,6 @@ sub OnSetContentLoaded()
         m.rowList.content = m.rowList.content ' trigger UI refresh
         m.loaderTask.nextRowContent = invalid
         m.rowList.jumpToRowItem = [focusedIndex[0], 0] ' restore focus to current row
-
+        row.alreadyLoaded = true        
     end if
 end sub
