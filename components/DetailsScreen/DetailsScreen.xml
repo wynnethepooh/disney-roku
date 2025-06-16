@@ -15,64 +15,50 @@
         <field id="buttonSelected" type="integer" alias="buttons.itemSelected" />
     </interface>
     <children>
-        <LayoutGroup
-            translation="[1166, 154]"
-            layoutDirection="horiz"
-            horizAlignment="right"
-            itemSpacings="[40]">
+        <Poster
+            id="backgroundImage"
+            translation="[0, 0]"
+        />
+        <Group id="detailsGroup" translation="[0, 0]" width="600">
+            <Poster
+                id="detailsGroupBackground"
+                uri="pkg:/images/gradient-background.png"
+                width="600"
+                height="720"
+                translation="[0,0]"
+            />
             <LayoutGroup
-                itemSpacings="[14, 10]"
-                layoutDirection="vert">
-                <Rectangle
-                    width="357"
-                    height="201"
-                    color="0xFFFFFF00">
-                    <Poster
-                        id="poster"
-                        width="357"
-                        loadWidth="357"
-                        height="201"
-                        loadHeight="201"
-                        loadDisplayMode="scaleToFit"
-                        failedBitmapUri="pkg:/images/disney-plus-hulu-logo.jpg"
-                    />
-                </Rectangle>
+                itemSpacings="[40]"
+                translation="[80, 100]">
                 <Label
                     id="titleLabel"
-                    width="357"
-                    wrap="false"
-                    horizAlign="right"
+                    wrap="true"
+                    maxLines="6"
+                    width="593"
+                    font="font:LargeBoldSystemFont"
+                />
+                <Poster
+                    id="titlePoster"
+                    width="320"
                 />
                 <Label
-                    id="timeLabel"
-                    width="357"
-                    wrap="false"
-                    horizAlign="right"
+                    id="descriptionLabel"
+                    wrap="true"
+                    maxLines="6"
+                    width="593"
                 />
-            </LayoutGroup>
-            <Group>
+                <Label
+                    id="metadataLabel"
+                    wrap="false"
+                    width="520"
+                />
                 <LabelList
                     id="buttons"
-                    numRows="3"
+                    numRows="1"
                     itemSpacing="[0,10]"
-                    itemSize="[593, 48]"
+                    itemSize="[100, 48]"
                 />
-                <LayoutGroup
-                    itemSpacings="[40]"
-                    translation="[0, 208]">
-                    <Label
-                        id="descriptionLabel"
-                        wrap="true"
-                        maxLines="6"
-                        width="593"
-                    />
-                    <Label
-                        id="releaseLabel"
-                        wrap="false"
-                        width="520"
-                    />
-                </LayoutGroup>
-            </Group>
-        </LayoutGroup>
+            </LayoutGroup>
+        </Group>
     </children>
 </component>

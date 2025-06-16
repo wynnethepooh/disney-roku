@@ -92,7 +92,7 @@ function GetSetContent(refId as string)
                         if itemData <> invalid
                             childNode = CreateObject("roSGNode", "ContentNode")
                             if itemData.title <> invalid then childNode.title = itemData.title
-                            if itemData.hdPosterURL <> invalid then childNode.hdPosterURL = itemData.hdPosterURL
+                            if itemData.tileImageUri <> invalid then childNode.tileImageUri = itemData.tileImageUri
                             if itemData.description <> invalid then childNode.description = itemData.description
                             if itemData.length <> invalid then childNode.length = itemData.length
                             contentNode.AppendChild(childNode)
@@ -124,24 +124,53 @@ function GetItemData(data as Object) as Object
 
     item.description = "test"
 
-    imageUrl = invalid
-    if data.type = "DmcVideo"
-        imageUrl = data.image.Lookup("tile").Lookup("1.78").Lookup("program").default.url
-    else if data.type = "DmcSeries"
-        imageUrl = data.image.Lookup("tile").Lookup("1.78").Lookup("series").default.url
-    else if data.type = "StandardCollection"
-        imageUrl = data.image.Lookup("tile").Lookup("1.78").Lookup("default").default.url
-    end if
-    if imageUrl <> invalid
-        item.hdPosterURL = imageUrl
-    else
-        item.hdPosterURL = "pkg:/images/disney-plus-hulu-logo.jpg" ' use placeholder image if no image is available
-    end if
+    GetItemImages(data, item)
 
     if data.releases <> invalid
-        item.releaseDate = data.releases[0].releaseDate
+        item.releaseYear = data.releases[0].releaseYear
+    end if
+
+    item.tags = data.tags
+    if data.ratings <> invalid and data.ratings.Count() > 0
+        item.rating = data.ratings[0].value
+    else
+        print "No ratings found for item: " + item.title
     end if
     
     item.length = 0
     return item
+end function
+
+function GetItemImages(data as Object, item) as Object
+    tiletileImageUrl = invalid
+    if data.type = "DmcVideo"
+        tileImageUrl = data.image.Lookup("tile").Lookup("1.78").Lookup("program").default.url
+        if data.image.Lookup("title_treatment") <> invalid
+            item.titleTreatmentImageUri = data.image.Lookup("title_treatment").Lookup("1.78").Lookup("program").default.url
+        end if
+        if data.image.Lookup("background") <> invalid
+            item.backgroundImageUri = data.image.Lookup("background").Lookup("1.78").Lookup("program").default.url
+        end if
+    else if data.type = "DmcSeries"
+        tileImageUrl = data.image.Lookup("tile").Lookup("1.78").Lookup("series").default.url
+        if data.image.Lookup("title_treatment") <> invalid
+            item.titleTreatmentImageUri = data.image.Lookup("title_treatment").Lookup("1.78").Lookup("series").default.url
+        end if
+        if data.image.Lookup("background") <> invalid
+            item.backgroundImageUri = data.image.Lookup("background").Lookup("1.78").Lookup("series").default.url
+        end if
+    else if data.type = "StandardCollection"
+        tileImageUrl = data.image.Lookup("tile").Lookup("1.78").Lookup("default").default.url
+        if data.image.Lookup("title_treatment") <> invalid
+            item.titleTreatmentImageUri = data.image.Lookup("title_treatment").Lookup("1.78").Lookup("default").default.url
+        end if
+        if data.image.Lookup("background") <> invalid
+            item.backgroundImageUri = data.image.Lookup("background").Lookup("1.78").Lookup("default").default.url
+        end if
+    end if
+    if tileImageUrl <> invalid
+        item.tileImageUri = tileImageUrl
+    else
+        item.tileImageUri = "pkg:/images/disney-plus-hulu-logo.jpg" ' use placeholder image if no image is available
+    end if
 end function
