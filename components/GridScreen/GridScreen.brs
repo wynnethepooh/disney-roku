@@ -10,41 +10,39 @@ sub Init()
     m.top.ObserveField("visible", "onVisibleChange")
     ' observe rowItemFocused so we can know when another item of rowList will be focused
     m.rowList.ObserveField("rowItemFocused", "OnItemFocused")
-    m.prevFocusedIndex = [0, 0]
 
     ' offset of row to load when an empty row is at the bottom of the screen
     m.ROW_LOAD_OFFSET = 1
 end sub
 
-sub OnVisibleChange() ' invoked when GridScreen change visibility
+' invoked when GridScreen visibility is changed
+sub OnVisibleChange()
     if m.top.visible = true
-        m.rowList.SetFocus(true) ' set focus to rowList if GridScreen visible
+        ' set focus to rowList if GridScreen visible
+        m.rowList.SetFocus(true)
     end if
 end sub
 
-sub OnItemFocused() ' invoked when another item is focused
-    focusedIndex = m.rowList.rowItemFocused ' get position of focused item
-    row = m.rowList.content.GetChild(focusedIndex[0]) ' get all items of row
+' invoked when another item is focused
+sub OnItemFocused()
+    focusedIndex = m.rowList.rowItemFocused
     bottomRow = m.rowList.content.GetChild(focusedIndex[0] + m.ROW_LOAD_OFFSET)
     if bottomRow <> invalid and bottomRow.type = "SetRef" and not bottomRow.alreadyloaded
         ' if focused item is a ref set, we need to fetch its content
         ' and add new content to rowList
-        LoadSetContent(bottomRow.refId) ' load content of the ref set
+        LoadSetContent(bottomRow.refId)
     end if
-
-    m.prevFocusedIndex = focusedIndex
 end sub
 
+' invokes MainLoaderTask to load content of the ref set
 sub LoadSetContent(refId as String)
-    ' this method is invoked by MainLoaderTask to load content of the ref set
     m.loaderTask = m.top.FindNode("MainLoaderTask")
     m.loaderTask.refId = refId
     m.loaderTask.ObserveField("nextRowContent", "OnSetContentLoaded")
     m.loaderTask.control = "run"
 end sub
 
-' invoked when ref set content is loaded and 
-' adds the items to the row
+' invoked when ref set content is loaded and adds the items to the row
 sub OnSetContentLoaded()
     setContent = m.loaderTask.nextRowContent
     if setContent <> invalid
@@ -55,7 +53,7 @@ sub OnSetContentLoaded()
         end for
         m.rowList.content = m.rowList.content ' trigger UI refresh
         m.loaderTask.nextRowContent = invalid
-        m.rowList.jumpToRowItem = [focusedIndex[0], 0] ' restore focus to current row
+        m.rowList.jumpToRowItem = focusedIndex ' restore focus to current row
         row.alreadyLoaded = true        
     end if
 end sub

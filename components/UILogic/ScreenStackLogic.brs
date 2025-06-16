@@ -12,7 +12,7 @@ sub ShowScreen(node as Object)
         prev.visible = false ' hide current screen if it exist
     end if
     ' show new screen
-    m.top.AppendChild(node) ' add new screen to scene    node.visible = true
+    m.top.AppendChild(node) ' add new screen to scene
     node.SetFocus(true)
     m.screenStack.Push(node) ' add new screen to the screen stack
 end sub

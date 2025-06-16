@@ -125,7 +125,7 @@ function GetItemData(data as Object) as Object
         print item.type
     end if
 
-    item.description = "test"
+    item.description = "Description"
 
     GetItemImages(data, item)
 
@@ -136,8 +136,6 @@ function GetItemData(data as Object) as Object
     item.tags = data.tags
     if data.ratings <> invalid and data.ratings.Count() > 0
         item.rating = data.ratings[0].value
-    else
-        print "No ratings found for item: " + item.title
     end if
     
     item.length = 0

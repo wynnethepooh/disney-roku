@@ -19,11 +19,11 @@
             id="backgroundImage"
             translation="[0, 0]"
         />
-        <Group id="detailsGroup" translation="[0, 0]" width="600">
+        <Group id="detailsGroup" translation="[0, 0]">
             <Poster
                 id="detailsGroupBackground"
                 uri="pkg:/images/gradient-background.png"
-                width="600"
+                width="1000"
                 height="720"
                 translation="[0,0]"
             />

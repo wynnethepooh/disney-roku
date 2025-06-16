@@ -1,5 +1,6 @@
 ' Copyright (c) 2020 Roku, Inc. All rights reserved.
 
+' invoked when item metadata retrieved
 sub OnContentSet() ' invoked when item metadata retrieved
     content = m.top.itemContent
     ' set poster uri if content is valid

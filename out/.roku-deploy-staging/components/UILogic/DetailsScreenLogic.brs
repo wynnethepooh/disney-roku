@@ -12,7 +12,8 @@ sub ShowDetailsScreen(content as Object, selectedItem as Integer)
     ShowScreen(detailsScreen)
 end sub
 
-sub OnButtonSelected(event) ' invoked when button in DetailsScreen is pressed
+' invoked when button in DetailsScreen is pressed
+sub OnButtonSelected(event)
     details = event.GetRoSGNode()
     content = details.content
     buttonIndex = event.getData() ' index of selected button
@@ -23,7 +24,8 @@ sub OnButtonSelected(event) ' invoked when button in DetailsScreen is pressed
     end if
 end sub
 
-sub OnDetailsScreenVisibilityChanged(event as Object) ' invoked when DetailsScreen "visible" field is changed
+' invoked when DetailsScreen "visible" field is changed
+sub OnDetailsScreenVisibilityChanged(event as Object)
     visible = event.GetData()
     detailsScreen = event.GetRoSGNode()
     ' update GridScreen's focus when navigate back from DetailsScreen
